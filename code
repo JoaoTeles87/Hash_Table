@@ -1,0 +1,162 @@
+#include <iostream>
+using namespace std;
+
+typedef struct Entry {
+    string key = "";
+    bool occupied = false; // Indicate whether the slot is occupied
+}Entry;
+
+typedef struct Dictionary {
+    int size;
+    int cnt;
+    Entry* hash;
+};
+
+Dictionary* create_dict(int size) {
+    Dictionary* d = new Dictionary;
+    d->size = size;
+    d->cnt = 0;
+    d->hash = new Entry[size];
+    return d;
+}
+
+int hash_function(string key, int size, int n) {
+    int sum = 0;
+    for (int t = 0; t < key.length(); t++) {
+        sum += key[t] * (t + 1);
+    }
+    sum *= 19;
+    int pos = abs(sum % 101);
+
+    return pos;
+}
+int colision(string key, int number){
+    return (hash_function(key, 101, 101) + (number * number) + (23 * number)) % 101;
+}
+int find(Dictionary* d, string key) {
+    int pos = hash_function(key, d->size, d->cnt);
+    int newpos = pos;
+
+    if (d->hash[pos].key == key && d->hash[pos].occupied) {
+        return pos;
+    }
+
+    int g = 1;
+    while (g < 20) {
+        newpos = colision(key, g);
+        if (d->hash[newpos].key == key && d->hash[newpos].occupied) {
+            return newpos;
+        }
+        g++;
+    }
+
+    return -1;
+}
+
+void insert(Dictionary* d, string key) {
+    int index = find(d, key);
+    if (index != -1 ) {
+        return; // Element not found
+    }
+    int pos = hash_function(key, d->size, d->cnt);
+    int newpos = pos; // Initialize newpos with pos
+    if (d->hash[pos].key == "" and !d->hash[pos].occupied and 101 > d->cnt){
+        d->hash[pos].key = key;
+        d->hash[pos].occupied = true;
+        d->cnt++;
+        return;
+    }
+    else if (d->hash[newpos].occupied and 101 > d->cnt and d->hash[pos].key != ""){
+    int g = 1;
+    while (g < 20) {
+        newpos = colision(key, g);
+        if (d->hash[newpos].key == "" and !d->hash[newpos].occupied) {
+            d->hash[newpos].key = key;
+            d->hash[newpos].occupied = true;
+            d->cnt++;
+            return;
+        }
+        g++;
+    }
+    }
+    
+    
+    
+}
+
+void remove(Dictionary* d, string key) {
+    int index = find(d, key);
+    if (index == -1) {
+        return; // Element not found
+    }
+    int pos = hash_function(key, d->size, d->cnt);
+    
+    int newpos = pos; // Initialize newpos with pos
+    if (d->hash[newpos].key == key and d->hash[newpos].occupied) {
+            d->hash[newpos].key = "";
+            d->hash[newpos].occupied = false;
+            d->cnt--;
+            return;
+    }
+    
+    int g = 1;
+    while (g < 20) {
+        newpos = colision(key, g);
+        if (d->hash[newpos].key == key) {
+            d->hash[newpos].key = "";
+            d->hash[newpos].occupied = false;
+            d->cnt--;
+            return;
+        }
+        g++;
+    
+}
+}
+
+
+int main() {
+    int casos, iteracoes;
+    
+    string nome;
+
+    cin >> casos;
+    for (int w = 0; w < casos; w++) {
+        int i = 0;
+        cin >> iteracoes;
+        Dictionary* table = create_dict(101);
+        while (iteracoes > i) {
+            string comando;
+            cin >> comando;
+            string command = "";
+            string object = "";
+            
+            command = command + comando[0];
+            for (int k=4; k < comando.length(); k++){
+                
+                object = object + comando[k];
+                
+            }
+            
+             if (comando[0] == 'A') {
+                
+                insert(table, object);
+            } else if (comando[0] == 'D') {
+                
+                remove(table, object);
+            }
+            i++;
+        }
+
+        cout << table->cnt << endl;
+
+        for (int y = 0; y < 101; y++) {
+            if (table->hash[y].key != "" ) {
+                cout << y << ":" << table->hash[y].key << endl;
+            }
+        }
+
+        delete table;
+    }
+
+    return 0;
+}
