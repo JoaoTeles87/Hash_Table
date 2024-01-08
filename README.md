@@ -1,6 +1,6 @@
 # Hash_Table
 A Hash Table problem solved using C++;
-
+Using the Open adressing way to treat collisions
 ## More
 Also for practicing in the Github space
 
